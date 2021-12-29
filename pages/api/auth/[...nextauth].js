@@ -41,6 +41,7 @@ export default NextAuth({
   },
   callbacks: {
     async jwt({ token, account, user }) {
+      //initial sign in
       if (account && user) {
         return {
           ...token,
@@ -54,7 +55,7 @@ export default NextAuth({
       if (Date.now() < token.accessTokenExpires) {
         return token;
       }
-      //if token expired
+      //if token expired, update it
       return await refreshAccessToken(token);
     },
 

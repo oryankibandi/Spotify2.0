@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Centre from '../components/Centre';
 import Sidebar from '../components/Sidebar';
 
 export default function Home() {
@@ -9,10 +10,11 @@ export default function Home() {
         {/* <link rel='icon' href='/favicon.ico' /> */}
       </Head>
 
-      <main>
+      <main className='flex'>
         {/* Sidebar */}
         <Sidebar />
         {/* Centre */}
+        <Centre />
       </main>
       <div>{/* Player */}</div>
     </div>

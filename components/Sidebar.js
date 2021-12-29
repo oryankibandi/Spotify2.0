@@ -8,17 +8,40 @@ import {
   SearchIcon,
 } from '@heroicons/react/outline';
 import { signOut, useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import { playlistIdState } from '../atoms/playlistAtom';
+import useSpotify from '../hooks/useSpotify';
 
 function Sidebar() {
+  const spotifyApi = useSpotify();
   const { data: session, status } = useSession();
+  const [playlists, setPlaylists] = useState([]);
+  const [playlistId, setPlaylistId] = useRecoilState(playlistIdState);
+
+  console.log('you selected ' + playlistId);
+
+  useEffect(() => {
+    if (spotifyApi.getAccessToken()) {
+      spotifyApi.getUserPlaylists().then((data) => {
+        console.log('Retrieved playlists', data.body.items);
+        setPlaylists(data.body.items);
+      });
+    }
+  }, [session, spotifyApi]);
 
   console.log(session);
+  console.log(status);
+  //console.log('playlists --->' + playlists[0].name);
 
   return (
-    <div className='text-gray-500 p-5 border-r border-gray-900'>
-      <div>
-        <button className='flex items-center space-x-2 hover:text-white'>
-          <LogoutIcon className='h-5 w-5' onClick={() => signOut} />
+    <div className='text-gray-500 p-5 text-sm border-r border-gray-900 overflow-y-scroll h-screen scrollbar-hide'>
+      <div className='space-y-4'>
+        <button
+          className='flex items-center space-x-2 hover:text-white'
+          onClick={() => signOut()}
+        >
+          <LogoutIcon className='h-5 w-5' />
           <p>Logout</p>
         </button>
         <button className='flex items-center space-x-2 hover:text-white'>
@@ -49,16 +72,36 @@ function Sidebar() {
         </button>
         <hr className='border-t-[1.5px] border-gray-900' />
         {/* Playlist */}
-        <p className='cursor-pointer hover:text-white'>Playlist Name....</p>
-        <p className='cursor-pointer hover:text-white'>Playlist Name....</p>
-        <p className='cursor-pointer hover:text-white'>Playlist Name....</p>
-        <p className='cursor-pointer hover:text-white'>Playlist Name....</p>
-        <p className='cursor-pointer hover:text-white'>Playlist Name....</p>
-        <p className='cursor-pointer hover:text-white'>Playlist Name....</p>
-        <p className='cursor-pointer hover:text-white'>Playlist Name....</p>
+        {playlists.map((playlist) => (
+          <p
+            className='cursor-pointer hover:text-white'
+            key={playlist.id}
+            onClick={() => {
+              setPlaylistId(playlist.id);
+            }}
+          >
+            {playlist.name}
+          </p>
+        ))}
       </div>
     </div>
   );
 }
 
 export default Sidebar;
+
+// export async function getServerSideProps() {
+//   const spotifyApi = useSpotify();
+
+//   if (spotifyApi.getAccessToken()) {
+//     spotifyApi.getUserPlaylists().then((data) => {
+//       console.log('Retrieved playlists from getSSP', data.body.items);
+//       const userPlaylist = data.body.items;
+//     });
+//   }
+//   return {
+//     props: {
+//       userPlaylist: userPlaylist,
+//     },
+//   };
+// }
