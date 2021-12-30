@@ -1,5 +1,7 @@
+import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import Centre from '../components/Centre';
+import Player from '../components/Player';
 import Sidebar from '../components/Sidebar';
 
 export default function Home() {
@@ -15,8 +17,21 @@ export default function Home() {
         <Sidebar />
         {/* Centre */}
         <Centre />
+        {/* Player */}
       </main>
-      <div>{/* Player */}</div>
+      <div className='text-white sticky bottom-0 w-full items-center'>
+        <Player />
+      </div>
     </div>
   );
+}
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+  console.log('session forn index getServer -->' + session.user.accessToken);
+  return {
+    props: {
+      session,
+    },
+  };
 }
